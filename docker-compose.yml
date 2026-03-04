@@ -11,8 +11,8 @@ services:
       - cutter_generated:/generated
     networks:
       - cutter_net
-    expose:
-      - "8088"
+    ports:
+      - "8088:8088"
     restart: unless-stopped
 
 networks:
