@@ -12,7 +12,7 @@ services:
     networks:
       - cutter_net
     expose:
-      - "8089"
+      - "8088"
     restart: unless-stopped
 
 networks:
