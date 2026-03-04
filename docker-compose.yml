@@ -1,0 +1,23 @@
+version: "3.8"
+
+services:
+  cutter_api:
+    build: .
+    container_name: cutter_api
+    environment:
+      - API_KEY=REPLACE_WITH_LONG_RANDOM_SECRET
+      - MAX_UPLOAD_MB=20
+    volumes:
+      - cutter_generated:/generated
+    networks:
+      - cutter_net
+    expose:
+      - "8089"
+    restart: unless-stopped
+
+networks:
+  cutter_net:
+    external: true
+
+volumes:
+  cutter_generated:
