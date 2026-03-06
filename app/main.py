@@ -129,47 +129,31 @@ def bw_to_svg_potrace(bw_path: Path, out_svg: Path):
     run(["potrace", str(tmp_pgm), "-s", "-o", str(out_svg)])
     tmp_pgm.unlink(missing_ok=True)
 
-
 def papooch_svg_to_stl(svg_path: Path, job_dir: Path) -> Path:
     """
-    Calls the Papooch repo scripts to generate STL.
-    Script entrypoints can differ across repo versions, so we try a few.
-    If yours differs, you only change this function.
+    Run Papooch with the correct arguments:
+    ./run.sh <input_svg> <output_dir>
+
+    Some versions also accept a third generator arg, but this should work
+    with the default stamp.scad shown in your error output.
     """
     repo = Path("/opt/cookie-cutter-generator")
-    (job_dir / "papooch").mkdir(exist_ok=True)
+    output_dir = job_dir / "papooch_out"
+    output_dir.mkdir(parents=True, exist_ok=True)
 
-    # Put the SVG where the repo expects it (common pattern)
-    shutil.copy2(svg_path, repo / "source-vector-image.svg")
+    run([
+        "bash",
+        "-lc",
+        f"cd {repo} && chmod +x ./run.sh && ./run.sh '{svg_path}' '{output_dir}'"
+    ])
 
-    # Try common script names
-    candidates = ["generate.sh", "run.sh", "run"]
-    script = None
-    for s in candidates:
-        if (repo / s).exists():
-            script = s
-            break
-
-    if not script:
-        raise RuntimeError("Papooch script not found (expected generate.sh/run.sh/run).")
-
-    # Run it
-    # Many versions accept a job name; others might not.
-    # First try with job id, if that fails try without args.
-    try:
-        run(["bash", "-lc", f"cd {repo} && chmod +x ./{script} && ./{script} {job_dir.name}"])
-    except Exception:
-        run(["bash", "-lc", f"cd {repo} && chmod +x ./{script} && ./{script}"])
-
-    # Find STL(s) in repo generated output
-    stls = list((repo / "generated").rglob("*.stl"))
+    stls = list(output_dir.rglob("*.stl"))
     if not stls:
-        raise RuntimeError("No STL generated. Check SVG quality or Papooch script usage.")
+        raise RuntimeError("No STL generated in Papooch output directory.")
 
     out_stl = job_dir / "output.stl"
     shutil.copy2(stls[0], out_stl)
     return out_stl
-
 
 @app.post("/generate")
 async def generate(
