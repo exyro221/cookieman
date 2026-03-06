@@ -7,6 +7,8 @@ RUN apt-get update && apt-get install -y \
   inkscape openscad potrace imagemagick \
   && rm -rf /var/lib/apt/lists/*
 
+RUN ln -s /usr/bin/openscad /usr/bin/openscad-nightly
+
 WORKDIR /opt
 RUN git clone https://github.com/Papooch/cookie-cutter-generator.git
 
@@ -24,3 +26,4 @@ ENV PATH="/opt/venv/bin:$PATH"
 
 EXPOSE 8088
 CMD ["uvicorn","main:app","--host","0.0.0.0","--port","8088"]
+
