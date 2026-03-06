@@ -14,6 +14,7 @@ RUN git clone https://github.com/Papooch/cookie-cutter-generator.git
 
 RUN sed -i 's/openscad-nightly/openscad/g' /opt/cookie-cutter-generator/generate-model.sh
 RUN sed -i 's/--enable=fast-csg//g' /opt/cookie-cutter-generator/generate-model.sh
+RUN sed -i 's/--enable=lazy-union//g' /opt/cookie-cutter-generator/generate-model.sh
 
 WORKDIR /app
 COPY app /app
